@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+"""Deploy the static contents"""
+from fabric.api import *
+from os.path import exists
+
+
+env.hosts = ['100.24.240.126', '54.157.134.215']
+
+
+def do_deploy(archive_path):
+    """Deploy the static contents to the server"""
+    if exists(archive_path) is False:
+        return False
+    try:
+        file_with_extenstion = archive_path.split("/")[-1]
+        file_name = file_with_extenstion.split(".")[0]
+        extraction_path = f'/data/web_static/releases/{file_name}/'
+        extracted_content = f'{extraction_path}/web_static/*'
+        put(archive_path, '/tmp/')
+        run(f"mkdir -p {extraction_path}")
+        run(f"tar -xzf /tmp/{file_with_extenstion} -C {extraction_path}")
+        run(f"rm /tmp/{file_with_extenstion}")
+        run(f'mv {extracted_content} {extraction_path}')
+        run(f'rm -rf {extraction_path}/web_static/')
+        run('rm -rf /data/web_static/current')
+        run(f'ln -s {extraction_path} /data/web_static/current')
+        return True
+    except:
+        return False
