@@ -7,6 +7,7 @@ from datetime import datetime
 env.hosts = ['100.24.240.126', '54.157.134.215']
 
 
+@runs_once
 def do_pack():
     """Create the .tgz file"""
     now = datetime.now()
