@@ -28,7 +28,7 @@ def do_deploy(archive_path):
         file_name = file_with_extenstion.split(".")[0]
         extraction_path = f'/data/web_static/releases/{file_name}/'
         extracted_content = f'{extraction_path}web_static/*'
-        put(archive_path, '/tmp/')
+        put(archive_path, '/tmp/{file_with_extenstion}')
         run(f"rm -rf {extraction_path}")
         run(f"mkdir -p {extraction_path}")
         run(f"tar -xzf /tmp/{file_with_extenstion} -C {extraction_path}")
