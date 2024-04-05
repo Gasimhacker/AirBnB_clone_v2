@@ -41,7 +41,7 @@ def do_deploy(archive_path):
         return False
 
 
-def do_deploy():
+def deploy():
     """Do a comlete deployment"""
     try:
         archive_path = do_pack()
