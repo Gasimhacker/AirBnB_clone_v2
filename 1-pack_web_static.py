@@ -15,4 +15,3 @@ def do_pack():
     command = local(full_command)
     if (command.succeeded):
         return file_name
-
