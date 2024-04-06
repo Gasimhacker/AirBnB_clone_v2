@@ -1,39 +1,38 @@
 #!/usr/bin/env bash
-# Setup the web servers for the deployment of web_static
+# Sets up a web server for deployment of web_static.
 
-# Install nginx if it is not installed
-if [ ! -x "$(command -v nginx)" ]
-then
-        apt-get -y update
-        apt-get -y install nginx
-fi
+apt-get update
+apt-get install -y nginx
 
-# Create new directories
+mkdir -p /data/web_static/releases/test/
 mkdir -p /data/web_static/shared/
-mkdir -p "/data/web_static/releases/test/"
+echo "Holberton School" > /data/web_static/releases/test/index.html
+ln -sf /data/web_static/releases/test/ /data/web_static/current
 
-# Make a fake content inside the file
-template="<html>
-        <head>
-        </head>
-        <body>
-                Holberton School
-        </body>
-</html>"
-echo "$template" > "/data/web_static/releases/test/index.html"
+chown -R ubuntu /data/
+chgrp -R ubuntu /data/
 
-# Create a symbolic link
-ln -sf "/data/web_static/releases/test/" "/data/web_static/current"
+printf %s "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    add_header X-Served-By $HOSTNAME;
+    root   /var/www/html;
+    index  index.html index.htm;
 
-# Change the ownership of the folder called data
-chown -R ubuntu:ubuntu /data/
+    location /hbnb_static {
+        alias /data/web_static/current;
+        index index.html index.htm;
+    }
 
-# Varaibles to be used with the sed command
-new_location="\n\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}"
-server="server_name _"
+    location /redirect_me {
+        return 301 http://cuberule.com/;
+    }
 
-# append the new location
-sed -i "/$server/a \ $new_location" /etc/nginx/sites-available/default
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/html;
+      internal;
+    }
+}" > /etc/nginx/sites-available/default
 
-# Restart the nginx server
 service nginx restart

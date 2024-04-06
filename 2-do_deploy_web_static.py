@@ -1,43 +1,49 @@
 #!/usr/bin/python3
-"""Deploy the static contents"""
-from fabric.api import *
-from os.path import exists
-from datetime import datetime
+# Fabfile to distribute an archive to a web server.
+import os.path
+from fabric.api import env
+from fabric.api import put
+from fabric.api import run
 
-env.hosts = ['100.24.240.126', '54.157.134.215']
-
-
-def do_pack():
-    """Create the .tgz file"""
-    now = datetime.now()
-    file_name = (f"versions/web_static_{now.year}{now.month}"
-                 f"{now.day}{now.hour}{now.minute}{now.second}.tgz")
-    full_command = f"tar -cvzf {file_name} web_static/"
-    local("mkdir -p versions")
-    command = local(full_command)
-    if (command.succeeded):
-        return file_name
+env.hosts = ["104.196.168.90", "35.196.46.172"]
 
 
 def do_deploy(archive_path):
-    """Deploy the static contents to the server"""
-    if exists(archive_path) is False:
+    """Distributes an archive to a web server.
+
+    Args:
+        archive_path (str): The path of the archive to distribute.
+    Returns:
+        If the file doesn't exist at archive_path or an error occurs - False.
+        Otherwise - True.
+    """
+    if os.path.isfile(archive_path) is False:
         return False
-    try:
-        file_with_extenstion = archive_path.split("/")[-1]
-        file_name = file_with_extenstion.split(".")[0]
-        extraction_path = f'/data/web_static/releases/{file_name}/'
-        extracted_content = f'{extraction_path}web_static/*'
-        put(archive_path, '/tmp/{file_with_extenstion}')
-        run(f"rm -rf {extraction_path}")
-        run(f"mkdir -p {extraction_path}")
-        run(f"tar -xzf /tmp/{file_with_extenstion} -C {extraction_path}")
-        run(f"rm /tmp/{file_with_extenstion}")
-        run(f'mv {extracted_content} {extraction_path}')
-        run(f'rm -rf {extraction_path}web_static/')
-        run('rm -rf /data/web_static/current')
-        run(f'ln -s {extraction_path} /data/web_static/current')
-        print("New version deployed!")
-        return True
-    except Exception:
+    file = archive_path.split("/")[-1]
+    name = file.split(".")[0]
+
+    if put(archive_path, "/tmp/{}".format(file)).failed is True:
         return False
+    if run("rm -rf /data/web_static/releases/{}/".
+           format(name)).failed is True:
+        return False
+    if run("mkdir -p /data/web_static/releases/{}/".
+           format(name)).failed is True:
+        return False
+    if run("tar -xzf /tmp/{} -C /data/web_static/releases/{}/".
+           format(file, name)).failed is True:
+        return False
+    if run("rm /tmp/{}".format(file)).failed is True:
+        return False
+    if run("mv /data/web_static/releases/{}/web_static/* "
+           "/data/web_static/releases/{}/".format(name, name)).failed is True:
+        return False
+    if run("rm -rf /data/web_static/releases/{}/web_static".
+           format(name)).failed is True:
+        return False
+    if run("rm -rf /data/web_static/current").failed is True:
+        return False
+    if run("ln -s /data/web_static/releases/{}/ /data/web_static/current".
+           format(name)).failed is True:
+        return False
+    return True
