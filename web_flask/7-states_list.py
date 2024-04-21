@@ -20,7 +20,9 @@ def tear_down(e):
 
 @app.route("/states_list")
 def list_states():
-    """List all the states"""
+    """
+    List all the states ordered by name from A to Z
+    """
     states = storage.all(State)
     return render_template('7-states_list.html', states=states)
 
