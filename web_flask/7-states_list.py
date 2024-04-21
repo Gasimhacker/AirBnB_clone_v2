@@ -18,7 +18,7 @@ def tear_down(e):
     storage.close()
 
 
-@app.route("/states_list")
+@app.route("/states_list", strict_slashes=False)
 def list_states():
     """List all the states"""
     states = storage.all(State)
