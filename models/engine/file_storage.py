@@ -13,6 +13,20 @@ class FileStorage:
         if cls is None:
             return FileStorage.__objects
 
+        if type(cls) is str:
+            from models.base_model import BaseModel
+            from models.user import User
+            from models.place import Place
+            from models.state import State
+            from models.city import City
+            from models.amenity import Amenity
+            from models.review import Review
+            classes = {
+                        'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                        'State': State, 'City': City, 'Amenity': Amenity,
+                        'Review': Review
+                      }
+            cls = classes[cls]
         return {key: obj for key, obj in FileStorage.__objects.items()
                 if obj.__class__ == cls}
 
