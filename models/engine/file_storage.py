@@ -13,8 +13,6 @@ class FileStorage:
         if cls is None:
             return FileStorage.__objects
 
-        if type(cls) is str:
-            cls = eval(cls)
         return {key: obj for key, obj in FileStorage.__objects.items()
                 if obj.__class__ == cls}
 
