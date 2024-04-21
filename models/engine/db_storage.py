@@ -33,11 +33,16 @@ class DBStorage:
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
+        if type(cls) is str:
+            classes = {
+                        'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                        'State': State, 'City': City, 'Amenity': Amenity,
+                        'Review': Review
+                      }
+            cls = classes[cls]
         if cls is not None:
             q = self.__session.query(cls).all()
         else:
-            if type(cls) is str:
-                cls = eval(cls)
             q = self.__session.query(State).all() + \
                 self.__session.query(City).all() + \
                 self.__session.query(User).all() + \
