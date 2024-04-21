@@ -1,9 +1,9 @@
-#!/usr/bin/pyhon3
+#!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from models.base_model import Base, BaseModel
+from models.base_model import Base
 from models.user import User
 from models.state import State
 from models.city import City
@@ -33,13 +33,6 @@ class DBStorage:
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        if type(cls) is str:
-            classes = {
-                        'BaseModel': BaseModel, 'User': User, 'Place': Place,
-                        'State': State, 'City': City, 'Amenity': Amenity,
-                        'Review': Review
-                      }
-            cls = classes[cls]
         if cls is not None:
             q = self.__session.query(cls).all()
         else:
